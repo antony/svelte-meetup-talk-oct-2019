@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Svelte Most Wanted</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Quicksand:400,500);
+      @import url(https://fonts.googleapis.com/css?family=Lobster);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Raleway:400,600);
+
+      body {
+        font-family: 'Quicksand';
+        font-weight: 400;
+      }
+
+      .title-slide {
+        background-color: #FB0048;
+        color: #fff;
+        text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.5);
+      }
+
+      .alternative {
+        background-color: #13E708;
+        color: #303030;
+        text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.5);
+      }
+
+      .alternative-2 {
+        background-color: #FFC300;
+      }
+
+      .quote {
+        background: linear-gradient(to bottom, rgba(0,183,234,1) 0%,rgba(0,158,195,1) 100%);
+        color: #fff;
+      }
+
+      .image-slide img {
+        width: 80%;
+      }
+
+      .image-slide p {
+        display: flex;
+        justify-content: center;
+      }
+
+      blockquote p {
+        font-family: Raleway;
+        font-size: 24px;
+        font-weight: 400;
+        margin: 4rem 0;
+      }
+
+      blockquote p em {
+        font-weight: 600;
+        text-decoration: italic;
+      }
+
+      blockquote p::before,
+      blockquote p::after {
+        content: "“";
+        font-family: Georgia;
+        font-size: 8rem;
+        margin: -3rem 0 0 -4rem;
+        position: absolute;
+        opacity: 0.25;
+      }
+
+      blockquote p::after {
+        content: "”";
+        margin: -1rem -4rem 0 0;
+      }
+
+      .quote > footer,
+      .quote > footer > cite {
+        font-size: 36px;
+      }
+
+      ol {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        counter-reset: ordered-list;
+      }
+
+      ol li:before {
+        color: gray;
+        content: counter(ordered-list);
+        counter-increment: ordered-list;
+        font-family: 'Lobster';
+        font-size: 38px;
+        line-height: 38px;
+        margin-right: 24px;
+      }
+
+      li {
+        padding-left: 24px;
+        margin: 24px;
+        display: flex;
+        align-items: center;
+      }
+
+      h1, h2, h3 {
+        font-family: 'Lobster';
+        font-weight: normal;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.25);
+      }
+
+      pre {
+        background-color: grey;
+      }
+
+      .remark-code, .remark-inline-code {
+        color: white;
+        font-family: 'Ubuntu Mono';
+      }
+
+      .code {
+        width: 100%;
+        height: 100%;
+        font-size: 14px;
+      }
+
+      .mermaid .messageText {
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle, title-slide
+
+# Svelte Most Wanted
+## October, 2019
+
+---
+
+class: .center.middle
+
+# Agenda
+
+1. Authentication with Sapper
+1. Asynchronous Library Loading
+1. Configuration
+1. SCSS
+1. Validation
+
+---
+
+class: center, middle, title-slide
+
+# Who am I?
+
+???
+
+1. My name is Antony Jones
+1. Co-Founder of Beyonk - adventure, travel, leisure - (we're hiring!)
+1. Been using Svelte since v1
+1. Saw the opportunity to build really light widgets to drop into partner sites
+1. Founding Beyonk gave me the opportunity to put what I believed into practice
+1. I used to be a backend Java developer. Svelte is one of the only reasons I tolerate the front-end.
+
+---
+
+class: center, middle, title-slide, alternative
+
+# Why this talk?
+
+???
+
+* I work from home most of the time
+* I always have discord open in a tab
+* The same questions come up over and over
+* I have gists
+* I thought it might be nice to talk through these things
+* It's important to understand that "missing things" are often "intentional decisions"
+
+---
+
+class: center, middle, title-slide, alternative, alternative-2
+
+# #1 Authentication with Sapper
+
+---
+
+class: center, middle, quote
+
+<blockquote>
+  <p>There are two hard problems in computer science: Cache invalidation, naming things, and off-by-one errors.</p>
+  <footer>
+  -- <cite>Leon Bambrick</cite>
+  </footer>
+</blockquote>
+
+---
+
+## The Problem:
+
+Sapper kindly gives us some more hard problems:
+
+1. SSR
+1. Not-SSR
+
+???
+Can't export application with Auth. Routes are pre-prendered.
+Everybody would get the same content.
+How do you get authentication on the server-side? And on the client-side?
+
+---
+
+## The Solution:
+
+1. JWT
+1. httpOnly cookies
+1. Express cookie-parser
+1. JsonWebToken
+
+???
+JWT creation done in API, Hapi - Hapi-Auth-JWT-2, Jsonwebtoken
+JWT is encoded and signed, can be decoded but not verified in browser
+We can use data from the JWT to display to the user
+Express Cookie Parser works with Polka - they have the same API
+Cookies - Widely Supported, Get passed on every request
+HttpOnly cookies for security - browser cannot see, only pass
+
+---
+
+### Authentication flow
+
+<div class="mermaid">
+  sequenceDiagram
+    participant Browser
+    participant Server
+    participant API
+
+    rect rgba(0, 0, 255, .1)
+    Browser->>API: Login Request
+    API-->>Browser: setCookie(JWT)
+    end
+
+    rect rgba(0, 255, 0, .1)
+    Browser->>API: fetch({ credentials: true })
+    Note right of Browser: Sends JWT
+    end
+
+    rect rgba(255, 0, 0, .1)
+    Browser->>Server: goto('/page')
+    Note over Server: preload ()
+    Server->>API: this.fetch({ credentials: true })
+    end
+</div>
+
+???
+
+* API sends a Json Web Token to the Browser as a Cookie
+* Browser stores Cookie
+
+* Fetch with credentials passes cookie to API
+* API verifies JWT integrity and authenticate user
+
+* Browser triggers server to preload
+* Preload has `this.fetch` which has cookie access
+
+---
+
+### The server-side
+
+<div data-code-highlight data-locs='[
+  { "line": 2 },
+  { "line": 4, "length": 2 },
+  { "line": 7 },
+  { "line": 9 }
+]'>
+  polka()
+    .use(
+      cookieParser(),
+      (req, res, next) => {
+        const token = req.cookies['my-jwt-name']
+        const profile = token ? jwt.decode(token) : false
+  
+        return sapper.middleware({
+          session: (req) => {
+            return { authenticated: !!profile, profile }
+          }
+        })(req, res, next)
+      }
+    )
+</div>
+
+
+---
+
+### The client-side
+
+<div data-code-highlight data-locs='[
+  { "line": 5, "length": 2 },
+  { "line": 0 },
+  { "line": 1 }
+]'>
+  {#if $session.authenticated}
+  <h1>Hello {$session.profile.name}</h1>
+  {/if}
+
+  <script>
+    import stores from 'svelte/stores'
+    const { session } = stores()
+  </script>
+</div>
+
+???
+Works on the server-side and the client-side.
+
+---
+
+### Fetching authenticated data
+
+<div data-code-highlight data-locs='[
+  { "line": 3, "length": 3 },
+  { "line": 4 },
+  { "line": 0 }
+]'>
+  <h1>Your secret: {secret}</h1>
+
+  <script>
+    const { secret } = await fetch('/some/endpoint', {
+      credentials: true
+    })
+  </script>
+</div>
+
+???
+1. Simple destructuring of some JSON from /some/endpoint
+1. Credentials: true - pass cookies to the API
+1. Use the returned data
+Can use the same technique in "preload" using `this.fetch`.
+
+---
+
+class: center, middle, title-slide
+
+# #2 Loading third-party libraries.
+
+???
+
+* Sometimes business forces us into things we don't want to do
+* Facebook customer chat
+* Google Analytics
+* Google Maps
+* Facebook customer chat - again
+* Third parties will kill your lighthouse score
+
+---
+
+## The Problem:
+
+1. When is a library "loaded"?
+1. When is Svelte "ready"?
+1. When is the DOM "ready"?
+1. What if my components are destroyed?
+
+???
+
+1. Does the library provide a callback?
+1. When can I guarantee that Svelte has finished setting up my page?
+1. Library attaches to a DOM element, then the DOM element is removed.
+1. The removed DOM element is put back, but the library doesn't know.
+1. All SPAs suffer from a similar problem.
+1. Often a library loaded twice can cause significant problems
+1. Google SDK worst offender - pulls out the script tag, replaces it with 7 more. If you keep installing in an SPA, these tags pile up.
+
+---
+
+## The Solution:
+
+<div data-code-highlight data-locs='[
+  { "line": 0 },
+  { "line": 1, "length": 3 },
+  { "line": 5 },
+  { "line": 6 },
+  { "line": 7 },
+  { "line": 8 }
+]'>
+export default function (url, test, callback) {
+  if (test()) {
+    return callback()
+  }
+
+  const tag = document.createElement('script')
+  tag.src = url
+  tag.onload = callback
+  document.body.appendChild(tag)
+}
+</div>
+
+???
+
+1. Simple but effective.
+1. First, test that it isn't already loaded - existence of global var, callback sets value, dom element exists, or existence of script tag
+1. If it's loaded, call the initialisation code (this should be idempotent)
+1. If it's not, inject a script tag into the page.
+---
+
+class: center, middle
+
+[![NPM](https://nodeico.herokuapp.com/@beyonk/async-script-loader.svg)](https://npmjs.com/package/@beyonk/async-script-loader)
+
+---
+
+class: center, middle, title-slide
+
+# #3 Configuration
+
+???
+
+1. This is a large topic
+1. Describing `process.env` and how it works in a bundled application.
+
+---
+
+## The Problem:
+
+process.env contains environment variables pertaining to the runtime environment. In a browser, though, it doesn't exist. How do we get hold of environment varibles in a user's browser?
+
+???
+
+* On the server side, `process.env.NODE_ENV` might equal `production`
+* On the client side, `process.env` is an null, and `process.env.NODE_ENV` throws an error.
+
+---
+
+class: center, middle
+
+# The Solution:
+
+[![NPM](https://nodeico.herokuapp.com/rollup-plugin-replace.svg)](https://npmjs.com/package/rollup-plugin-replace)
+
+---
+
+<div data-code-highlight data-locs='[
+  { "line": 0 },
+  { "line": 2, "length": 4 },
+  { "line": 7 },
+  { "line": 8, "length": 2 },
+  { "line": 15, "length": 3 }
+]'>
+import replace from 'rollup-plugin-replace'
+
+const conf = {
+  apiKey: 'some-value',
+  otherValue: 'other-value'
+}
+
+const appConfig = Object.keys(conf).reduce((acc, n) => {
+	acc[`process.env.${n}`] = JSON.stringify(conf[n])
+	return acc
+}, {})
+
+export default {
+  ...,
+	plugins: [
+    replace({
+      ...appConfig
+    }),
+    ...
+  ]
+}
+</div>
+
+???
+
+* Or Yarn. Lol.
+* Or Webpack. Alias - does anybody know the name?
+* Stringify is really important
+* Creates a replacement token `process.env.VARIABLE_NAME` to reduce cognitive overhead
+* You can't destructure - why?
+
+---
+
+# A Caveat:
+
+You can't do this!
+
+```
+process.env.MY_VARIABLE = 'foo'
+const { MY_VARIABLE } = process.env
+```
+
+--
+
+Results in an error 'Cannot get property env of undefined'
+
+???
+
+* At runtime, looks for `process`. Doesn't exist in a browser.
+
+--
+
+You can do this:
+
+```
+process.env.MY_VARIABLE = 'foo'
+const MY_VARIABLE = process.env.MY_VARIABLE
+```
+
+--
+
+Why?
+
+```
+const MY_VARIABLE = 'foo'
+
+// if (process.env.MY_VARIABLE === 'foo')
+if ('foo' === 'foo') {
+  // stuff
+}
+```
+
+???
+
+* The alias plugin literally replaces strings whilst bundling.
+* Because it looks for exact strings like `process.env.MY_VARIABLE`, you can't destructure.
+* Silly things like `true === true`.
+
+---
+
+class: center, middle, title-slide
+
+# #4 SCSS
+# #4 Stylus
+# #4 Global Styling
+# #4 PostCSS
+
+???
+
+1. This slide has "at least" four titles
+1. Will be explained later
+
+---
+
+class: quote, center, middle
+
+## The Problem:
+
+> We *can't adopt* Svelte until it supports Framework X, React supports this *out-of-the-box*, how can you expect *to-compete*? This isn't a *serious framework*...
+
+<footer>
+  -- <cite>The People</cite>
+</footer>
+
+???
+* Amalgamation of things I've seen
+* Not a serious framework
+* Being Opinionated or not defines you as serious.
+* Dangerous coupling
+* Please build-in and bless (which? SCSS? Stylus, Less, Css In Js? Flavour of the Day?)
+
+---
+
+class: center, middle
+
+## The Solution:
+
+[![NPM](https://nodeico.herokuapp.com/svelte-preprocess.svg)](https://npmjs.com/package/svelte-preprocess)
+
+???
+
+* Module by Kaisermann
+* Support for numerous preprocessors
+* Easy to configure
+* Great documentation
+* People get distracted by `-scss` or `-stylus` equivalents.
+* Must also install `sass` or `stylus` modules etc
+
+---
+
+### In your Rollup config:
+
+<div data-code-highlight data-locs='[
+  { "line": 0 },
+  { "line": 1 },
+  { "line": 2 },
+  { "line": 3, "length": 6 },
+  { "line": 9, "length": 5 }
+]'>
+svelte({
+  preprocess: sveltePreprocess({
+    transformers: {
+      scss: {
+        includePaths: [
+          'node_modules',
+          'src'
+        ]
+      },
+      postcss: {
+        plugins: [
+          require('autoprefixer')
+        ]
+      }
+    }
+  })
+})
+</div>
+
+???
+
+* Svelte does actually support preprocessors
+* Works without configuration, but
+* includePaths saves a lot of relative paths `../..`
+* Autoprefixer so nasty "browsers" like Safari and Edge can render pages
+
+---
+
+### In your layout:
+
+TODO: Check this is the way to do it.
+<div data-code-highlight data-locs='[
+  { "line": 1 }
+]'>
+<svelte:head>
+  <script src="path/to/your/scss-entrypoint.scss"></script>
+</svelte:head>
+</div>
+
+In your components:
+
+<div data-code-highlight data-locs='[
+  { "line": 1 },
+  { "line": 4 }
+]'>
+<script lang="scss">
+  @import 'path/to/your/variables.scss';
+
+  div {
+    color: $mainColour;
+  }
+</script>
+</div>
+
+???
+
+* Use lang scss in your script tags
+* Import in layout, css is global, not scoped.
+* In components, import variables.
+
+---
+
+### Bonus Feature
+
+<div data-code-highlight data-locs='[
+  { "line": 0 }
+]'>
+<script global>
+  .button {
+    colour: blue;
+  }
+</script>
+</div>
+
+???
+
+* A newer feature of svelte-preprocess
+* Automatically prefixes your styles with global
+* Treat it like you'd treat !important. Scoped CSS is the future.
+
+---
+
+class: center, middle, cover, alternative-2
+
+# #5 Validation
+
+???
+
+* Reactive variables and directives make validation quite easy.
+* This is my take on validation. It's not a solution for everyone.
+* Valiation is an unsolved problem, and is very subjective.
+* Users still won't get it. No matter how hard you try.
+
+---
+
+class: image-slide
+
+## The Problem:
+
+![DeviantART Validation](/static/images/deviantart-errors.png)
+
+???
+
+* hard to get right
+* Long forms - scroll to top for messages? brittle?
+* Focus error fields?
+* Where do you show messages?
+* Multiple validation messages per field? Or Bail Early?
+* Does colouration of a field make it better?
+* Do people understand symbols? (X means clear as well as WRONG)
+* Validate everything on submit? What if submit is disabled?
+
+---
+
+## The Solution:
+
+* I don't have a solution!
+* But I can do the best I can, and learn from my users.
+
+--
+
+### Goals:
+
+* I want something reusable
+* I want something pretty obvious
+* I don't want boilerplate
+* I want delegation
+* I want a lifecycle
+
+???
+
+* Creating a feedback loop is critical
+* Creating a fast feedback loop is optimal
+* Delegation - I don't want to worry about a field, I want to validate a form
+* When I validate a form, I want each field to handle itself
+* I want my CTA to be part of the validation lifecycle.
+
+---
+
+## The Solution
+
+<iframe style="height: 60%; width: 96%;" src="https://svelte.dev/repl/54d159b954d9412c8247807125d9fe1b?version=3.12.1">
+</iframe>
+
+???
+
+* Three Parts
+* The validator directive (Thanks @pngwn)
+* The individual fields share validation 
+* The validation is obvious - colours, hints
+* $valid - reactive, I always know if a field is valid or not.
+* $dirty - don't show validation messages if I haven't done anything (thanks angular)
+
+---
+
+### Validation Stores
+
+<div data-code-highlight data-locs='[
+    { "line": 0 },
+    { "line": 1, "length": 4 },
+    { "line": 6, "length": 4 }
+  ]'>
+import createValidator from './validate.js'
+import {
+  emailValidator,
+  requiredValidator
+} from './validators.js'
+
+const [
+  emailValidity,
+  validateEmailField
+] = createValidator(requiredValidator(), emailValidator())
+
+let email = null
+</div>
+
+???
+
+* Validators, simple function which return true or an error messages
+* `createValidator` is an action factory
+* `createValidator` returns a tuple:
+  * emailValidity = validity store, dirty and valid
+  * validateEmailField = an action, add to field with `use:`
+
+---
+
+### Validators
+
+<div data-code-highlight data-locs='[
+  { "line": 0 },
+  { "line": 1 },
+  { "line": 2, "length": 2 }
+]'>
+function minLengthValidator (length) {
+  return function minLength (value) {
+    const meetsRequirements = value && value.length >= length
+    return meetsRequirements || `Must be at least ${length} characters`
+  }
+}
+</div>
+
+???
+
+* Function which returns a function - currying
+* Outer function takes customisable parameters
+* Returned function takes value as parameter
+* Pass a series of curried functions to the validation action
+
+---
+
+### Validation Action Factory
+
+<div data-code-highlight data-locs='[
+  { "line": 3 },
+  { "line": 5, "length": 14 },
+  { "line": 12 },
+  { "line": 20 }
+]'>
+import { writable } from 'svelte/store'
+
+export default function (...validators) {
+  const { subscribe, set } = writable({ dirty: false, valid: false, message: null })
+
+  function action (node) {
+    function validate (dirty = true) {
+      const failing = validators.find(v => v(node.value) !== true)
+
+      set({ dirty, valid: !failing, message: failing && failing(node.value) })
+    }
+
+    node.addEventListener('input', validate)
+    validate(false)
+
+    return {
+      destroy: () => node.removeEventListener('input', validate)
+    }
+  }
+
+  return [ { subscribe }, action ]
+}
+</div>
+
+???
+
+* At first glance, seems like a lot of code
+* Due to Svelte's reactivity, simple, reactive validation can be a single line of code
+* All the validation code you will ever need throughout your app
+* Very DRY
+
+* Factory creates a writable store and pulls off it's subscribe and set methods
+* Create the action, to be used on the input field
+* Add an event listener when the input changes
+* Return a thing which looks like a store (reactive), can be subscribed to
+* Return the action we created just above
+
+---
+
+# Sample App
+
+[https://github.com/antony/svelte-london-2019-oct](https://github.com/antony/svelte-london-2019-oct)
+
+???
+
+* Contains this presentation
+* Covers everything discussed here
+* Available on github
+
+---
+
+class: center, middle, title-slide
+
+# Thanks for listening
+
+???
+
+1. Thanks (bar, Ben - Luke, name2)
+1. Next talk in 15 mins
+
+---
+    </textarea>
+    <script src="/remark-latest.min.js"></script>
+    <script src="/node_modules/@beyonk/svelte-codehighlight/dist/code-highlight.min.js"></script>
+    <script src="/node_modules/mermaid/dist/mermaid.min.js"></script>
+
+    <script async defer>
+      var slideshow = remark.create(document.body, () => {
+        window.BEYONK.CodeHighlight()
+        mermaid.initialize({ startOnLoad:true })
+      })
+    </script>
+  </body>
+</html>
