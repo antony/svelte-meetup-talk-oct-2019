@@ -4,13 +4,13 @@
     <title>Svelte Most Wanted</title>
     <meta charset="utf-8">
     <style>
-      @import url(https://fonts.googleapis.com/css?family=Quicksand:400,500);
+      @import url(https://fonts.googleapis.com/css?family=Catamaran:400,500,900);
       @import url(https://fonts.googleapis.com/css?family=Lobster);
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
       @import url(https://fonts.googleapis.com/css?family=Raleway:400,600);
 
       body {
-        font-family: 'Quicksand';
+        font-family: 'Catamaran';
         font-weight: 400;
       }
 
@@ -76,26 +76,55 @@
         font-size: 36px;
       }
 
-      ol {
-        list-style-type: none;
+      .side-by-side ul {
+        list-style: none;
+        display: flex;
+      }
+
+      .side-by-side ul li {
+        font-size: 72px;
+        font-weight: 900;
+        padding: 24px;
+      }
+
+      .side-by-side ul li:not(:last-child)::after {
+        content: "|";
+        font-weight: 400;
+        font-size: 160px;
+        margin-left: 40px;
+        color: #FB0048;
+      }
+
+      .remark-slide-content ol {
+        list-style: none;
+        counter-reset: my-awesome-counter;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
         margin: 0;
         padding: 0;
-        counter-reset: ordered-list;
+        transform: translateY(-40px) rotate(-10deg);
       }
 
-      ol li:before {
-        color: gray;
-        content: counter(ordered-list);
-        counter-increment: ordered-list;
-        font-family: 'Lobster';
-        font-size: 38px;
-        line-height: 38px;
-        margin-right: 24px;
+      .remark-slide-content ol li {
+        counter-increment: my-awesome-counter;
+        display: flex;
+        width: 46%;
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
       }
 
-      li {
+      .remark-slide-content ol li::before {
+        content: "0" counter(my-awesome-counter);
+        font-weight: bold;
+        font-size: 3rem;
+        margin-right: 1.5rem;
+        font-family: 'Lobster', serif;
+        line-height: 1;
+      }
+
+      .remark-slide-content li {
         padding-left: 24px;
-        margin: 24px;
         display: flex;
         align-items: center;
       }
@@ -110,7 +139,8 @@
         background-color: grey;
       }
 
-      .remark-code, .remark-inline-code {
+      .remark-slide-content .remark-code,
+      .remark-slide-content .remark-inline-code {
         color: white;
         font-family: 'Ubuntu Mono';
       }
@@ -131,6 +161,10 @@
 
       .left-column {
         width: 28%;
+      }
+
+      .left-column h3:last-child {
+        color: #FB0048;
       }
 
       .left-column h2,
@@ -155,6 +189,15 @@
         width: 100%;
         padding: 3em 2em;
       }
+
+      .logo-holder {
+        display: flex;
+        justify-content: center;
+      }
+      
+      .logo-holder p {
+        width: 30%;
+      }
     </style>
   </head>
   <body>
@@ -167,7 +210,7 @@ class: center, middle, title-slide
 
 ---
 
-class: .center.middle
+class: middle
 
 # Agenda
 
@@ -193,6 +236,16 @@ class: center, middle, title-slide
 1. Co-Founder of Beyonk - adventure, travel, leisure - (we're hiring!)
 1. Been using Svelte since v1
 1. Saw the opportunity and built light, self contained widgets for partner sites
+
+--
+
+.logo-holder[
+  [![NPM](/static/images/logo.svg)](https://www.beyonk.com)
+]
+
+???
+
+1. Founded an adventure / experiences / travel company called Beyonk with my co-founder Oscar
 1. Founding Beyonk gave me the opportunity to put what I believed into practice - whole platform
 1. I used to be a backend Java developer. Svelte is one of the only reasons I tolerate the front-end.
 
@@ -230,18 +283,20 @@ class: center, middle, quote
 
 ---
 
+class: side-by-side
+
 ## The Problem:
 
 Sapper kindly gives us some more hard problems:
 
-1. SSR
+* SSR
 
 ???
 * Server-side-rendering
 
 --
 
-1. Not-SSR
+* Not-SSR
 
 ???
 * Can't export application with Auth. Routes are pre-prendered.
@@ -250,9 +305,11 @@ Sapper kindly gives us some more hard problems:
 
 ---
 
+class: middle
+
 ## The Solution:
 
-1. JWT
+1. this.fetch
 1. httpOnly cookies
 1. Express cookie-parser
 1. JsonWebToken
@@ -438,6 +495,8 @@ class: center, middle, title-slide
 
 ---
 
+class: middle
+
 ## The Problem:
 
 1. When is a library "loaded"?
@@ -506,12 +565,14 @@ class: center, middle, title-slide
 
 ## The Problem:
 
-process.env contains environment variables pertaining to the runtime environment. In a browser, though, it doesn't exist. How do we get hold of environment varibles in a user's browser?
+* process.env contains environment variables pertaining to the runtime environment.
+* In a browser, though, it doesn't exist.
+* How do we get hold of environment varibles in a user's browser?
 
 ???
 
-* On the server side, `process.env.NODE_ENV` might equal `production`
-* On the client side, `process.env` is an null, and `process.env.NODE_ENV` throws an error.
+* On the server side, process.env.NODE_ENV might equal production
+* On the client side, process.env is an null, and process.env.NODE_ENV throws an error.
 
 ---
 
@@ -580,7 +641,7 @@ Results in an error 'Cannot get property env of undefined'
 
 ???
 
-* At runtime, looks for `process`. Doesn't exist in a browser.
+* At runtime, looks for process. Doesn't exist in a browser.
 
 --
 
@@ -607,8 +668,8 @@ if ('foo' === 'foo') {
 ???
 
 * The alias plugin literally replaces strings whilst bundling.
-* Because it looks for exact strings like `process.env.MY_VARIABLE`, you can't destructure.
-* Silly things like `true === true`.
+* Because it looks for exact strings like process.env.MY_VARIABLE, you can't destructure.
+* Silly things like true === true.
 
 ---
 
