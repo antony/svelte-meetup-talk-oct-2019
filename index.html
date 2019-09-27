@@ -117,12 +117,43 @@
 
       .code {
         width: 100%;
-        height: 100%;
         font-size: 14px;
       }
 
       .mermaid .messageText {
         font-size: 16px;
+      }
+
+      .columns {
+        display: flex;
+        height: 100%;
+      }
+
+      .left-column {
+        width: 28%;
+      }
+
+      .left-column h2,
+      .left-column h3 {
+        margin: 12px 0;
+      }
+
+      .left-column h2 {
+        font-size: 36px;
+      }
+
+      .left-column h3 {
+        font-size: 24px;
+      }
+
+      .right-column {
+        width: 72%;
+        display: flex;
+      }
+
+      .right-column > div {
+        width: 100%;
+        padding: 3em 2em;
       }
     </style>
   </head>
@@ -146,6 +177,10 @@ class: .center.middle
 1. SCSS
 1. Validation
 
+???
+
+5 most commonly asked questions in Svelte chat
+
 ---
 
 class: center, middle, title-slide
@@ -157,8 +192,8 @@ class: center, middle, title-slide
 1. My name is Antony Jones
 1. Co-Founder of Beyonk - adventure, travel, leisure - (we're hiring!)
 1. Been using Svelte since v1
-1. Saw the opportunity to build really light widgets to drop into partner sites
-1. Founding Beyonk gave me the opportunity to put what I believed into practice
+1. Saw the opportunity and built light, self contained widgets for partner sites
+1. Founding Beyonk gave me the opportunity to put what I believed into practice - whole platform
 1. I used to be a backend Java developer. Svelte is one of the only reasons I tolerate the front-end.
 
 ---
@@ -200,12 +235,18 @@ class: center, middle, quote
 Sapper kindly gives us some more hard problems:
 
 1. SSR
+
+???
+* Server-side-rendering
+
+--
+
 1. Not-SSR
 
 ???
-Can't export application with Auth. Routes are pre-prendered.
-Everybody would get the same content.
-How do you get authentication on the server-side? And on the client-side?
+* Can't export application with Auth. Routes are pre-prendered.
+* Everybody would get the same content.
+* How do you get authentication on the server-side? And on the client-side?
 
 ---
 
@@ -217,55 +258,74 @@ How do you get authentication on the server-side? And on the client-side?
 1. JsonWebToken
 
 ???
-JWT creation done in API, Hapi - Hapi-Auth-JWT-2, Jsonwebtoken
-JWT is encoded and signed, can be decoded but not verified in browser
-We can use data from the JWT to display to the user
-Express Cookie Parser works with Polka - they have the same API
-Cookies - Widely Supported, Get passed on every request
-HttpOnly cookies for security - browser cannot see, only pass
+* Four modules
+* JWT creation done in API - Hapi, Hapi Auth JWT2
+* JWT is encoded and signed, can be decoded but not verified in browser
+* We can use data from the JWT to display to the user
+* Express Cookie Parser works with Polka - they have the same API
+* Cookies - Widely Supported, Get passed on every request
+* HttpOnly cookies for security - browser cannot see, only pass
 
 ---
 
-### Authentication flow
+class: columns
 
+.left-column[
+  ## Authentication
+  ### - The Flow
+]
+.right-column[
 <div class="mermaid">
   sequenceDiagram
     participant Browser
     participant Server
     participant API
 
-    rect rgba(0, 0, 255, .1)
+    rect rgba(255, 195, 0, .1)
     Browser->>API: Login Request
     API-->>Browser: setCookie(JWT)
     end
 
-    rect rgba(0, 255, 0, .1)
+    rect rgba(251, 0, 72, .1)
     Browser->>API: fetch({ credentials: true })
     Note right of Browser: Sends JWT
     end
 
-    rect rgba(255, 0, 0, .1)
+    rect rgba(19, 231, 8, .1)
     Browser->>Server: goto('/page')
     Note over Server: preload ()
     Server->>API: this.fetch({ credentials: true })
     end
 </div>
+]
 
 ???
+
+1.
 
 * API sends a Json Web Token to the Browser as a Cookie
 * Browser stores Cookie
 
+2.
+
 * Fetch with credentials passes cookie to API
 * API verifies JWT integrity and authenticate user
 
+3.
+
 * Browser triggers server to preload
-* Preload has `this.fetch` which has cookie access
+* Preload has this.fetch which has cookie access
 
 ---
 
-### The server-side
+class: columns
 
+.left-column[
+  ## Authentication
+  ### - The Flow
+  ### - The Server-Side
+]
+.right-column[
 <div data-code-highlight data-locs='[
   { "line": 2 },
   { "line": 4, "length": 2 },
@@ -287,12 +347,26 @@ HttpOnly cookies for security - browser cannot see, only pass
       }
     )
 </div>
+]
 
+???
+
+1. Cookie Parser middleware
+1. Grab token from Cookie and decode it's payload
+1. Return the original sapper middleware, called as function
+1. Populate the session
 
 ---
 
-### The client-side
+class: columns
 
+.left-column[
+  ## Authentication
+  ### - The Flow
+  ### - The Server-Side
+  ### - The Client-Side
+]
+.right-column[
 <div data-code-highlight data-locs='[
   { "line": 5, "length": 2 },
   { "line": 0 },
@@ -307,14 +381,25 @@ HttpOnly cookies for security - browser cannot see, only pass
     const { session } = stores()
   </script>
 </div>
+]
 
 ???
-Works on the server-side and the client-side.
+1. Import the Sapper session store
+1. Use store data to prevent rendering of profile data
+1. Use data from the profile given by the JWT
 
 ---
 
-### Fetching authenticated data
+class: columns
 
+.left-column[
+  ## Authentication
+  ### - The Flow
+  ### - The Server-Side
+  ### - The Client-Side
+  ### - Fetching Data
+]
+.right-column[
 <div data-code-highlight data-locs='[
   { "line": 3, "length": 3 },
   { "line": 4 },
@@ -328,6 +413,7 @@ Works on the server-side and the client-side.
     })
   </script>
 </div>
+]
 
 ???
 1. Simple destructuring of some JSON from /some/endpoint
@@ -362,7 +448,7 @@ class: center, middle, title-slide
 ???
 
 1. Does the library provide a callback?
-1. When can I guarantee that Svelte has finished setting up my page?
+1. onMount - elements in page
 1. Library attaches to a DOM element, then the DOM element is removed.
 1. The removed DOM element is put back, but the library doesn't know.
 1. All SPAs suffer from a similar problem.
@@ -397,13 +483,13 @@ export default function (url, test, callback) {
 
 1. Simple but effective.
 1. First, test that it isn't already loaded - existence of global var, callback sets value, dom element exists, or existence of script tag
-1. If it's loaded, call the initialisation code (this should be idempotent)
-1. If it's not, inject a script tag into the page.
+1. If it's loaded, call the initialisation callback (this should be idempotent)
+1. If it's not, inject a script tag into the page - wait for onload
 ---
 
 class: center, middle
 
-[![NPM](https://nodeico.herokuapp.com/@beyonk/async-script-loader.svg)](https://npmjs.com/package/@beyonk/async-script-loader)
+[![NPM](/static/images/async-script-loader.svg)](https://npmjs.com/package/@beyonk/async-script-loader)
 
 ---
 
@@ -433,9 +519,11 @@ class: center, middle
 
 # The Solution:
 
-[![NPM](https://nodeico.herokuapp.com/rollup-plugin-replace.svg)](https://npmjs.com/package/rollup-plugin-replace)
+[![NPM](/static/images/rollup-plugin-replace.svg)](https://npmjs.com/package/rollup-plugin-replace)
 
 ---
+
+### Configuration into Rollup
 
 <div data-code-highlight data-locs='[
   { "line": 0 },
@@ -472,12 +560,12 @@ export default {
 * Or Yarn. Lol.
 * Or Webpack. Alias - does anybody know the name?
 * Stringify is really important
-* Creates a replacement token `process.env.VARIABLE_NAME` to reduce cognitive overhead
+* Creates a replacement token process.env.VARIABLE_NAME to reduce cognitive overhead
 * You can't destructure - why?
 
 ---
 
-# A Caveat:
+### A Caveat:
 
 You can't do this!
 
@@ -561,7 +649,7 @@ class: center, middle
 
 ## The Solution:
 
-[![NPM](https://nodeico.herokuapp.com/svelte-preprocess.svg)](https://npmjs.com/package/svelte-preprocess)
+[![NPM](/static/images/svelte-preprocess.svg)](https://npmjs.com/package/svelte-preprocess)
 
 ???
 
@@ -574,8 +662,13 @@ class: center, middle
 
 ---
 
-### In your Rollup config:
+class: columns
 
+.left-column[
+  ## Svelte Preprocess
+  ### - Rollup Config
+]
+.right-column[
 <div data-code-highlight data-locs='[
   { "line": 0 },
   { "line": 1 },
@@ -601,6 +694,7 @@ svelte({
   })
 })
 </div>
+]
 
 ???
 
@@ -611,9 +705,14 @@ svelte({
 
 ---
 
-### In your layout:
+class: columns
 
-TODO: Check this is the way to do it.
+.left-column[
+  ## Svelte Preprocess
+  ### - Rollup Config
+  ### - Global Styles
+]
+.right-column[
 <div data-code-highlight data-locs='[
   { "line": 1 }
 ]'>
@@ -621,9 +720,25 @@ TODO: Check this is the way to do it.
   <script src="path/to/your/scss-entrypoint.scss"></script>
 </svelte:head>
 </div>
+]
 
-In your components:
+???
 
+* Import scss file directly into your `_layout.svelte` or other component.
+* Styles imported via this method are unscoped, i.e. global
+* Good for CSS frameworks - Bulma, Bootstrap, Semantic etc
+
+---
+
+class: columns
+
+.left-column[
+  ## Svelte Preprocess
+  ### - Rollup Config
+  ### - Global Styles
+  ### - Component Styles
+]
+.right-column[
 <div data-code-highlight data-locs='[
   { "line": 1 },
   { "line": 4 }
@@ -636,6 +751,7 @@ In your components:
   }
 </script>
 </div>
+]
 
 ???
 
@@ -645,8 +761,16 @@ In your components:
 
 ---
 
-### Bonus Feature
+class: columns
 
+.left-column[
+  ## Svelte Preprocess
+  ### - Rollup Config
+  ### - Global Styles
+  ### - Component Styles
+  ### - Bonus Feature
+]
+.right-column[
 <div data-code-highlight data-locs='[
   { "line": 0 }
 ]'>
@@ -656,6 +780,7 @@ In your components:
   }
 </script>
 </div>
+]
 
 ???
 
@@ -722,7 +847,7 @@ class: image-slide
 
 ---
 
-## The Solution
+## Demonstration:
 
 <iframe style="height: 60%; width: 96%;" src="https://svelte.dev/repl/54d159b954d9412c8247807125d9fe1b?version=3.12.1">
 </iframe>
@@ -738,8 +863,13 @@ class: image-slide
 
 ---
 
-### Validation Stores
+class: columns
 
+.left-column[
+  ## Validation
+  ### - The Store
+]
+.right-column[
 <div data-code-highlight data-locs='[
     { "line": 0 },
     { "line": 1, "length": 4 },
@@ -758,19 +888,26 @@ const [
 
 let email = null
 </div>
+]
 
 ???
 
 * Validators, simple function which return true or an error messages
-* `createValidator` is an action factory
-* `createValidator` returns a tuple:
+* createValidator is an action factory
+* createValidator returns a tuple:
   * emailValidity = validity store, dirty and valid
   * validateEmailField = an action, add to field with `use:`
 
 ---
 
-### Validators
+class: columns
 
+.left-column[
+  ## Validation
+  ### - The Store
+  ### - The Validators
+]
+.right-column[
 <div data-code-highlight data-locs='[
   { "line": 0 },
   { "line": 1 },
@@ -783,6 +920,7 @@ function minLengthValidator (length) {
   }
 }
 </div>
+]
 
 ???
 
@@ -793,37 +931,54 @@ function minLengthValidator (length) {
 
 ---
 
-### Validation Action Factory
+class: columns
 
+.left-column[
+  ## Validation
+  ### - The Store
+  ### - The Validators
+  ### - The Action
+]
+.right-column[
 <div data-code-highlight data-locs='[
-  { "line": 3 },
-  { "line": 5, "length": 14 },
-  { "line": 12 },
-  { "line": 20 }
+  { "line": 3, "length": 3 },
+  { "line": 6, "length": 22 },
+  { "line": 19 },
+  { "line": 29 }
 ]'>
 import { writable } from 'svelte/store'
 
 export default function (...validators) {
-  const { subscribe, set } = writable({ dirty: false, valid: false, message: null })
+  const { subscribe, set } = writable({
+    dirty: false, valid: false, message: null
+  })
 
   function action (node) {
     function validate (dirty = true) {
-      const failing = validators.find(v => v(node.value) !== true)
+      const failing = validators.find(
+        v => v(node.value) !== true
+      )
 
-      set({ dirty, valid: !failing, message: failing && failing(node.value) })
+      set({ dirty,
+        valid: !failing,
+        message: failing && failing(node.value)
+      })
     }
 
     node.addEventListener('input', validate)
     validate(false)
 
     return {
-      destroy: () => node.removeEventListener('input', validate)
+      destroy: () => {
+        node.removeEventListener('input', validate)
+      }
     }
   }
 
   return [ { subscribe }, action ]
 }
 </div>
+]
 
 ???
 
@@ -840,9 +995,11 @@ export default function (...validators) {
 
 ---
 
+class: center, middle
+
 # Sample App
 
-[https://github.com/antony/svelte-london-2019-oct](https://github.com/antony/svelte-london-2019-oct)
+[https://github.com/antony/svelte-meetup-talk-oct-2019](https://github.com/antony/svelte-meetup-talk-oct-2019)
 
 ???
 
@@ -861,7 +1018,6 @@ class: center, middle, title-slide
 1. Thanks (bar, Ben - Luke, name2)
 1. Next talk in 15 mins
 
----
     </textarea>
     <script src="/remark-latest.min.js"></script>
     <script src="/node_modules/@beyonk/svelte-codehighlight/dist/code-highlight.min.js"></script>
@@ -870,7 +1026,7 @@ class: center, middle, title-slide
     <script async defer>
       var slideshow = remark.create(document.body, () => {
         window.BEYONK.CodeHighlight()
-        mermaid.initialize({ startOnLoad:true })
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' })
       })
     </script>
   </body>
