@@ -4,10 +4,11 @@
     <title>Svelte Most Wanted</title>
     <meta charset="utf-8">
     <style>
-      @import url(https://fonts.googleapis.com/css?family=Catamaran:400,500,900);
+      @import url(static/css/fonts.css);
+      /* @import url(https://fonts.googleapis.com/css?family=Catamaran:400,500,900);
       @import url(https://fonts.googleapis.com/css?family=Lobster);
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
-      @import url(https://fonts.googleapis.com/css?family=Raleway:400,600);
+      @import url(https://fonts.googleapis.com/css?family=Raleway:400,600); */
 
       body {
         font-family: 'Catamaran';
@@ -1076,13 +1077,14 @@ class: center, middle, title-slide
 
 ???
 
-1. Thanks (bar, Ben - Luke, name2)
+1. Thanks to our hosts (bar, Ben, Liam, David)
+1. Thanks for coming
 1. Next talk in 15 mins
 
     </textarea>
-    <script src="remark-latest.min.js"></script>
-    <script src="node_modules/@beyonk/svelte-codehighlight/dist/code-highlight.min.js"></script>
-    <script src="node_modules/mermaid/dist/mermaid.min.js"></script>
+    <script src="static/scripts/remark-latest.min.js"></script>
+    <script src="static/scripts/code-highlight.min.js"></script>
+    <script src="static/scripts/mermaid.min.js"></script>
 
     <script async defer>
       var slideshow = remark.create(document.body, () => {

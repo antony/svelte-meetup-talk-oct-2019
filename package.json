@@ -4,14 +4,14 @@
   "description": "",
   "main": "remark-latest.min.js",
   "scripts": {
-    "dev": "http-server ."
+    "dev": "http-server .",
+    "postinstall": "cp node_modules/mermaid/dist/mermaid.min.js ./static/scripts/ && cp node_modules/@beyonk/svelte-codehighlight/dist/code-highlight.min.js ./static/scripts/"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@beyonk/svelte-codehighlight": "0.0.5",
     "http-server": "^0.11.1",
-    "mermaid": "^8.3.1",
-    "sirv-cli": "^0.4.4"
+    "mermaid": "^8.3.1"
   }
 }
