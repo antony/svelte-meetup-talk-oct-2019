@@ -345,14 +345,14 @@ class: columns
     end
 
     rect rgba(251, 0, 72, .1)
-    Browser->>API: fetch({ credentials: true })
+    Browser->>API: fetch({ credentials: 'include' })
     Note right of Browser: Sends JWT
     end
 
     rect rgba(19, 231, 8, .1)
     Browser->>Server: goto('/page')
     Note over Server: preload ()
-    Server->>API: this.fetch({ credentials: true })
+    Server->>API: this.fetch({ credentials: 'include' })
     end
 </div>
 ]
@@ -475,7 +475,7 @@ class: columns
 
 ???
 1. Simple destructuring of some JSON from /some/endpoint
-1. Credentials: true - pass cookies to the API
+1. credentials: 'include' - pass cookies to the API
 1. Use the returned data
 Can use the same technique in "preload" using `this.fetch`.
 
@@ -779,7 +779,7 @@ class: columns
   { "line": 1 }
 ]'>
 <svelte:head>
-  <script src="path/to/your/scss-entrypoint.scss"></script>
+  <style src="path/to/your/scss-entrypoint.scss"></style>
 </svelte:head>
 </div>
 ]
