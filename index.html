@@ -954,11 +954,10 @@ let email = null
 
 ???
 
-* Validators, simple function which return true or an error messages
-* createValidator is an action factory
-* createValidator returns a tuple:
-  * emailValidity = validity store, dirty and valid
-  * validateEmailField = an action, add to field with `use:`
+* Function which returns a function - currying
+* Outer function takes customisable parameters
+* Returned function takes value as parameter
+* Pass a series of curried functions to the validation action
 
 ---
 
@@ -984,12 +983,14 @@ function minLengthValidator (length) {
 </div>
 ]
 
+
 ???
 
-* Function which returns a function - currying
-* Outer function takes customisable parameters
-* Returned function takes value as parameter
-* Pass a series of curried functions to the validation action
+* Validators, simple function which return true or an error messages
+* createValidator is an action factory
+* createValidator returns a tuple:
+  * emailValidity = validity store, dirty and valid
+  * validateEmailField = an action, add to field with `use:`
 
 ---
 
